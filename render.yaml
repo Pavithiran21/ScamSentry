@@ -8,7 +8,7 @@
 # (e.g. cron-job.org, daily) at POST /api/internal/jobs/purge-report-text with the X-Job-Secret header.
 services:
   - type: web
-    name: scamsentry
+    name: scamsentry-pavithiran
     runtime: docker
     plan: free
     healthCheckPath: /api/health
