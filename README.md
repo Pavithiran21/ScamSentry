@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/Pavithiran21/ScamSentry/actions/workflows/ci.yml/badge.svg)](https://github.com/Pavithiran21/ScamSentry/actions/workflows/ci.yml)
 
+**Live demo: [scamsentry-28n5.onrender.com/demo](https://scamsentry-28n5.onrender.com/demo)** (log in as a User or a Moderator in one click). It runs on free hosting, so the first load after a quiet spell can take about a minute.
+
 A scam and phishing checker for messages people receive by SMS, WhatsApp or email. You paste a message and get a clear verdict (safe, suspicious or likely scam) with the red flags found, a check on every link, and plain advice on what to do. It works without signing in. Signed-in users get a higher limit, a saved history and the right to report a wrong verdict to a moderator.
 
 **Node · Express 5 · MongoDB (Mongoose) · LLM (OpenAI-compatible, Groq) · React 19 · TanStack Query · Tailwind CSS 4 · Playwright**
