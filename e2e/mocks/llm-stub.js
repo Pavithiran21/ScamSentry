@@ -27,12 +27,16 @@ function messageOf(body) {
 // "Hi Mom" and power-cut messages are suspicious, and the rest fall to the rules below.
 const SAMPLES = [
   [/is your OTP for HDFC Bank NetBanking/, 'safe', 'A genuine one-time password notice that warns you not to share it.'],
-  [/credit card statement for/, 'safe', 'A routine statement notice with no link or request for details.'],
+  // Flagged on purpose: a real statement alert with a link is the false alarm a user reports and a
+  // moderator overturns to "safe" in the seeded demo (seed-helpers.js, cardReport).
+  [/credit card statement for/, 'suspicious', 'A bank alert that asks you to open a link; the checker cannot confirm who owns it.'],
   [/Delhivery: Your package will be delivered/, 'safe', 'A delivery update that links to the courier\'s real website.'],
   [/still meeting at 6 for dinner/, 'safe', 'An ordinary personal message with no request for money or details.'],
   [/Hi Mom, I lost my phone/, 'suspicious', 'A "new number" message asking for money is a common family-impersonation trick.'],
   [/electricity power will be disconnected/, 'suspicious', 'Power companies don\'t threaten same-night cuts by SMS and ask you to call an officer.'],
-  [/part-time job|redelivery fee|amaz0n|eligible for a refund/i, 'likely_scam', 'It asks for money or details with a made-up reason and an unofficial link.'],
+  // Only "suspicious" on purpose: the seeded demo has a user report it as a likely scam.
+  [/redelivery fee/, 'suspicious', 'A small fee for a held parcel is a common trick, but it could also be a real courier notice.'],
+  [/part-time job|amaz0n|eligible for a refund/i, 'likely_scam', 'It asks for money or details with a made-up reason and an unofficial link.'],
 ];
 
 function answerFor(text) {
