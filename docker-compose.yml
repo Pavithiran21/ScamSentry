@@ -1,0 +1,49 @@
+# ScamSentry on your machine in one command:
+#
+#   $env:LLM_API_KEY='<a free Groq key>'      # PowerShell; or export LLM_API_KEY=... in bash
+#   docker compose up --build
+#   docker compose exec app npm run seed:demo  # demo user + moderator, sample checks and reports
+#
+# then open http://localhost:4000 (Log in as User / Moderator at /demo, password below).
+# MongoDB runs as a one-node replica set, as Atlas does.
+
+services:
+  db:
+    image: mongo:8
+    command: ['--replSet', 'rs0', '--bind_ip_all']
+    volumes:
+      - scamsentry-mongo:/data/db
+    healthcheck:
+      # Starts the replica set on the first run, then reports whether it is up.
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'db:27017' }] }).ok }"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '4000:4000'
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://db:27017/scamsentry_demo?replicaSet=rs0
+      JWT_SECRET: local-only-secret-change-me-0123456789abcdef
+      INPUT_HASH_SECRET: local-only-hash-secret-change-me-0123456789
+      JOB_TRIGGER_SECRET: local-only-job-secret-change-me-0123456789
+      FRONTEND_URL: http://localhost:4000
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-oss-120b}
+      LLM_API_KEY: ${LLM_API_KEY:?Set LLM_API_KEY to a Groq (or other OpenAI-compatible) API key first}
+      DEMO_MODE: 'true'
+      DEMO_PASSWORD: scamsentry-demo-1
+      SMTP_HOST: ${SMTP_HOST:-smtp.ethereal.email}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-set-me}
+      SMTP_PASS: ${SMTP_PASS:-set-me}
+      SMTP_FROM: ${SMTP_FROM:-ScamSentry <no-reply@scamsentry.test>}
+
+volumes:
+  scamsentry-mongo:

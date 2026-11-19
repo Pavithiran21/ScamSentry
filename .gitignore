@@ -1,0 +1,15 @@
+.env
+.env.demo
+.env.test
+e2e-results/
+videos/
+node_modules/
+.run/
+tools/
+dist/
+coverage/
+.env*
+
+# Playwright run output (e2e/)
+e2e/test-results/
+e2e/playwright-report/
