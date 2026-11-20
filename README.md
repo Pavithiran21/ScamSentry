@@ -164,10 +164,13 @@ npm test        # writes .env.test, seeds scamsentry_test, starts the stand-in m
 
 ## Deploy
 
-One free [Render](https://render.com) web service from the `Dockerfile` (see [`render.yaml`](render.yaml)): the API serves the built frontend, so the app, the API and both cookies share one origin, with no CORS or cross-site cookies.
+The frontend runs on [Vercel](https://vercel.com) and the API on [Render](https://render.com), and the browser still sees one origin: [`frontend/vercel.json`](frontend/vercel.json) forwards `/api/*` to the Render service, so the cookies (SameSite=Strict) work with no CORS or cross-site cookies.
+
+- **Frontend (Vercel):** import the repository, set the Root Directory to `frontend` (framework Vite, build `npm run build`, output `dist`). `vercel.json` also sends every other path to `index.html` for React Router and sets the page's security headers. If the Render service is renamed, change its URL in `vercel.json`.
+- **API (Render):** one free web service from `Dockerfile.api` (see [`render.yaml`](render.yaml)). The full `Dockerfile` (API plus built frontend on one origin) is what `docker-compose.yml` and CI use.
 
 - **Database:** MongoDB Atlas free M0, database `scamsentry_demo` (allow Render's outbound IPs under Network Access).
-- **Settings:** `NODE_ENV=production`, `TRUST_PROXY=1`, `DEMO_MODE=true`, `FRONTEND_URL` = the service URL, `LLM_API_KEY` (Groq), and SMTP for real mail (Brevo) plus `DEMO_SMTP_*` (Ethereal) for the demo accounts' mail.
+- **Settings:** `NODE_ENV=production`, `TRUST_PROXY=2` (Vercel, then Render's proxy), `DEMO_MODE=true`, `FRONTEND_URL` = the Vercel URL, `LLM_API_KEY` (Groq), and SMTP for real mail (Brevo) plus `DEMO_SMTP_*` (Ethereal) for the demo accounts' mail.
 - **Demo data:** run `npm run seed:demo` once from the service's Shell.
 - **Purge job:** a free service sleeps after 15 minutes without traffic, so the in-process schedule only runs while it's awake. A daily external cron (e.g. cron-job.org) calls `POST /api/internal/jobs/purge-report-text` with the `X-Job-Secret` header.
 
